@@ -2,15 +2,9 @@ import json
 import os
 import random
 import time
-from datetime import datetime
-
 from openai import OpenAI, OpenAIError
-
 import sys
 
-# ---------------------------------------------------------------------
-# Model configuration
-# ---------------------------------------------------------------------
 API_KEY = os.getenv("ALI_API_KEY")
 BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 MODEL = "qwen3-235b-a22b"
@@ -24,9 +18,7 @@ client = OpenAI(
     base_url=BASE_URL,
 )
 
-# ---------------------------------------------------------------------
-# Taxonomy definition
-# ---------------------------------------------------------------------
+
 TAXONOMY = {
     "non-astronomy": {
         "math": {},
@@ -51,9 +43,7 @@ TAXONOMY = {
     }
 }
 
-# ---------------------------------------------------------------------
-# Target number of samples per leaf
-# ---------------------------------------------------------------------
+
 TARGET_NUM = {
     "non-star-formation": 5,
     "math": 5,
@@ -63,9 +53,6 @@ TARGET_NUM = {
 }
 DEFAULT_SAMPLES = 5
 
-# ---------------------------------------------------------------------
-# Prompt templates
-# ---------------------------------------------------------------------
 SYSTEM_TEMPLATE = (
     "You are an experienced researcher in {domain}, writing concise, publish-quality scientific "
     "abstracts in English."
@@ -83,9 +70,6 @@ USER_TEMPLATE = (
     "Output JSON only."
 )
 
-# ---------------------------------------------------------------------
-# Utility: iterate leaf nodes
-# ---------------------------------------------------------------------
 def leaf_paths(tree, prefix=()):
     for key, subtree in tree.items():
         if subtree:
@@ -155,7 +139,7 @@ def main(output_file="synthetic_corpus.jsonl"):
         for path in leaf_paths(TAXONOMY):
             leaf = path[-1]
             n_samples = TARGET_NUM.get(leaf, DEFAULT_SAMPLES)
-            print(f"➡️  Generating {n_samples:3d} samples for {'/'.join(path)}")
+            print(f"Generating {n_samples:3d} samples for {'/'.join(path)}")
 
             try:
                 batch = generate_batch(path, n_samples)
@@ -170,12 +154,10 @@ def main(output_file="synthetic_corpus.jsonl"):
 
             time.sleep(1)
 
-    print(f"🎉 All done. Output written to {output_file}")
+    print(f"All done. Output written to {output_file}")
 
 # ---------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------
 if __name__ == "__main__":
-    if os.getenv("DASHSCOPE_API_KEY", "YOUR_DASHSCOPE_API_KEY_HERE") == "YOUR_DASHSCOPE_API_KEY_HERE":
-        raise SystemExit("Please set your DASHSCOPE_API_KEY environment variable or edit the script.")
     main()
